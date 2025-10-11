@@ -1,5 +1,5 @@
 class World:
-    def __init__(self, dt=0.01):
+    def __init__(self, dt=0.1):
         self.dt = dt
         self.bodies = []
 

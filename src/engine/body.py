@@ -13,4 +13,4 @@ class Body:
         self.force += np.array(force, dtype=float)
 
     def clear_force(self):
-        self.force = 0.0
+        self.force = np.zeros(2, dtype=float)
