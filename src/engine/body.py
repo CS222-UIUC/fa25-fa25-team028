@@ -16,5 +16,6 @@ class Body:
         self.force = np.zeros(2, dtype=float)
     
     def kinetic_energy(self):
+        """计算动能: KE = ½mv²"""
         velocity_magnitude_squared = np.dot(self.velocity, self.velocity)
         return 0.5 * self.mass * velocity_magnitude_squared
