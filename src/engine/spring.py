@@ -2,13 +2,13 @@ import numpy as np
 
 
 class Spring:
-    def __init__(self, body1, body2, k, rest_length):
+    def __init__(self, body1, body2, k, rest_length,damping=0.01):
         self.body1 = body1
         self.body2 = body2
         self.k = k
         self.rest_length = rest_length
         # need to create way for user to control damping ratio/coefficient
-        self.damping = 0.1
+        self.damping = damping
 
     def apply_forces(self):
         # Hooke's law: F = -k * x
