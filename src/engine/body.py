@@ -14,3 +14,7 @@ class Body:
 
     def clear_force(self):
         self.force = np.zeros(2, dtype=float)
+    
+    def kinetic_energy(self):
+        velocity_magnitude_squared = np.dot(self.velocity, self.velocity)
+        return 0.5 * self.mass * velocity_magnitude_squared
