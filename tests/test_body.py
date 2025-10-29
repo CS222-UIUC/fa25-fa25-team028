@@ -1,18 +1,7 @@
-import os
-import sys
-import numpy as np
-import pytest
-
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-SRC_DIR = os.path.join(PROJECT_ROOT, "src")
-if SRC_DIR not in sys.path:
-    sys.path.insert(0, SRC_DIR)
-
-# not Optional, setting path to src
-
 from engine.body import Body
 from engine.integrator import euler_step
 from engine.world import World
+import numpy as np
 
 
 def test_body_init():
