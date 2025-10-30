@@ -18,4 +18,11 @@ class Body:
     def kinetic_energy(self):
         velocity_magnitude_squared = np.dot(self.velocity, self.velocity)
         return 0.5 * self.mass * velocity_magnitude_squared
+
+    def apply_gravity(self, g=9.8):
+        gravity_force = np.array([0, -self.mass * g])
+        self.apply_force(gravity_force)
+
+    def momentum(self):
+        return self.mass * self.velocity
     
