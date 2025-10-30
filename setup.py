@@ -19,7 +19,8 @@ setup(
     include_package_data=True, 
     entry_points={
         "console_scripts": [
-            "single-spring-demo=physics_engine.demos.single_spring_demo:main",
+            "single-spring-demo=engine.demos.single_spring_demo:main",
+            "pygame-spring-demo=engine.demos.pygame_spring_demo:main",
         ]
     },
 )
