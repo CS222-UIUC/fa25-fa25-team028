@@ -34,9 +34,9 @@ class Slider:
         self.y = y
         self.width = width
         self.height = 20
-        self.min_val = min_val
-        self.max_val = max_val
-        self.value = initial_val
+        self.min_val = float(min_val)
+        self.max_val = float(max_val)
+        self.value = float(initial_val)
         self.label = label
         self.dragging = False
         self.font = pygame.font.Font(None, 20)
@@ -58,7 +58,7 @@ class Slider:
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            handle_x = self.x + int((self.value - self.min_val) / (self.max_val - self.min_val) * self.width)
+            handle_x = self.x + ((self.value - self.min_val) / (self.max_val - self.min_val) * self.width)
             handle_rect = pygame.Rect(handle_x - 5, self.y - 5, 10, self.height + 10)
             if handle_rect.collidepoint(event.pos):
                 self.dragging = True
