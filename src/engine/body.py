@@ -19,3 +19,9 @@ class Body:
         velocity_magnitude_squared = np.dot(self.velocity, self.velocity)
         return 0.5 * self.mass * velocity_magnitude_squared
     
+    def momentum(self):
+        return self.mass * self.velocity
+
+    def gravitational_potential_energy(self, g=9.81, reference_height=0.0):
+        height = float(self.position[1])
+        return self.mass * float(g) * (height - float(reference_height))
