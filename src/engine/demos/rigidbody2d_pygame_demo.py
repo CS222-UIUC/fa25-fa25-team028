@@ -44,7 +44,7 @@ def main():
 
     dt = 1.0 / 120.0        
     substeps = 2             
-    gravity = 9.8            # m/s^2
+    gravity = 9.8        
     gravity_on = True
 
     shape = PolygonShape(make_box(2.0, 1.0))
@@ -64,7 +64,7 @@ def main():
         reset_btn = Button(132, 12, 110, 40, "Reset", (150, 95, 95))
         step_btn  = Button(252, 12, 110, 40, "Step",  (95, 95, 150))
         grav_btn  = Button(372, 12, 140, 40, "Gravity: ON", (120, 120, 90))
-        sub_slider = Slider(12, 70, 240, 1, 8, 2, "Substeps")  # 1~8 子步
+        sub_slider = Slider(12, 70, 240, 1, 8, 2, "Substeps")  # 1~8 substeps
         info = InfoPanel(SCREEN_W - 260, 12)
 
     paused = False
@@ -82,12 +82,42 @@ def main():
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
                 running = False
+                
 
             if e.type == pygame.MOUSEBUTTONDOWN and e.button == 1:
                 mx, my = e.pos
                 wp = np.array([(mx - ORIGIN[0]) / PPM, -(my - ORIGIN[1]) / PPM], dtype=float)
-                J = np.array([0.8, 0.4])  # N·s
-                rb.apply_impulse(J, world_point=wp)
+
+                r = wp - rb.position
+                r_norm = np.linalg.norm(r)
+                if r_norm < 1e-9: # if point on 0/0
+                    n = np.array([1.0, 0.0])
+                else:
+                    n = r / r_norm
+                    t_ccw = np.array([-n[1], n[0]])
+                    if r[0] >= 0: 
+                        t = t_ccw 
+                    else:
+                        t= -t_ccw
+
+    
+                mods = pygame.key.get_mods()
+                torque_free = bool(mods & pygame.KMOD_SHIFT)  # shift -> pure shift
+                pure_spin   = bool(mods & pygame.KMOD_CTRL)   # ctrl -> pure spin
+
+                J_mag = 1.0  # impulse
+
+                if pure_spin:
+                    J = J_mag * t
+                    apply_point = wp
+                elif torque_free:
+                    J = J_mag * n
+                    apply_point = rb.position
+                else:
+                    J = J_mag * (0.6 * n + 0.8 * t)
+                    apply_point = wp
+
+                rb.apply_impulse(J, world_point=apply_point)
 
             if HAS_UI:
                 if pause_btn.handle_event(e):
