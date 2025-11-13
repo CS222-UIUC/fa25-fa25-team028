@@ -19,17 +19,43 @@ def polygon_area_and_centroid(verts_ccw):
     return abs(area), np.array([cx, cy])
 
 
+# def polygon_inertia_about_centroid(mass, verts_ccw):
+#     """
+#     Inertia about centroid
+#     """
+#     v = np.asarray(verts_ccw, dtype=float)
+#     x = v[:, 0]; y = v[:, 1]
+#     x1 = np.roll(x, -1); y1 = np.roll(y, -1)
+#     cross = x * y1 - x1 * y
+#     denom = 12.0 * polygon_area_and_centroid(v)[0]
+#     I = ( (x*x + x*x1 + x1*x1) + (y*y + y*y1 + y1*y1) ) * cross
+#     I = mass * I.sum() / denom
+#     return float(abs(I))
+
 def polygon_inertia_about_centroid(mass, verts_ccw):
     """
-    Inertia about centroid
+    Inertia of a polygon about its centroid.
+    verts_ccw: (N,2) array, counter clockwise vertices
     """
     v = np.asarray(verts_ccw, dtype=float)
+
+    area, centroid = polygon_area_and_centroid(v)
+    if area <= 0.0:
+        raise ValueError("Polygon area must be positive")
+    area = abs(area)
+
+    v = v - centroid
+
     x = v[:, 0]; y = v[:, 1]
     x1 = np.roll(x, -1); y1 = np.roll(y, -1)
+
     cross = x * y1 - x1 * y
-    denom = 12.0 * polygon_area_and_centroid(v)[0]
-    I = ( (x*x + x*x1 + x1*x1) + (y*y + y*y1 + y1*y1) ) * cross
-    I = mass * I.sum() / denom
+    denom = 12.0 * area          # density = mass / area
+
+    I_terms = ((x*x + x*x1 + x1*x1) +
+               (y*y + y*y1 + y1*y1)) * cross
+
+    I = mass * I_terms.sum() / denom
     return float(abs(I))
 
 

@@ -3,8 +3,8 @@ import math
 import numpy as np
 import pygame
 
-from engine.rigidbody2d import PolygonShape, RigidBody2D
-
+from engine.rigidbody2d import PolygonShape, RigidBody2D, cross2D
+REST_COEF = 0.2
 try:
     from engine.ui_controls import Button, Slider, InfoPanel
     HAS_UI = True
@@ -27,6 +27,42 @@ def draw_polygon(screen, world_vertices, origin, ppm, color=(0, 130, 255)):
     pts = [world_to_screen(v, origin, ppm) for v in world_vertices]
     pygame.draw.polygon(screen, color, pts, width=0)
     pygame.draw.polygon(screen, (255, 255, 255), pts, width=2)
+
+def collide_with_ground(rb, ground_y, restitution=REST_COEF):
+    wv = rb.world_vertices()
+
+    below = wv[:, 1] < ground_y
+    if not np.any(below):
+            return  
+
+    contacts = wv[below]
+
+    penetrations = ground_y - contacts[:, 1]   
+    max_pen = np.max(penetrations)
+    rb.position[1] += max_pen  
+    rb._update_rotation()
+
+    n = np.array([0.0, 1.0])  # ground normal direction, up
+    for p in contacts:
+        r = p - rb.position  
+
+        v_contact = rb.velocity + np.array(
+            [-rb.angular_velocity * r[1],
+             rb.angular_velocity * r[0]]
+        )
+
+        v_rel_n = np.dot(v_contact, n)
+        if v_rel_n >= 0.0:
+            continue  # not bumping into ground -> don't consider impulse
+
+        rn = cross2D(r, n)
+        inv_mass_eff = rb.inv_mass + (rn * rn) * rb.inv_inertia
+
+        jn = -(1.0 + restitution) * v_rel_n / inv_mass_eff
+        impulse = jn * n
+
+        rb.apply_impulse(impulse, world_point=p)
+
 
 
 def main():
@@ -88,19 +124,18 @@ def main():
                 mx, my = e.pos
                 wp = np.array([(mx - ORIGIN[0]) / PPM, -(my - ORIGIN[1]) / PPM], dtype=float)
 
-                r = wp - rb.position
+                r = rb.position - wp     # modified: reversed
                 r_norm = np.linalg.norm(r)
                 if r_norm < 1e-9: # if point on 0/0
                     n = np.array([1.0, 0.0])
                 else:
                     n = r / r_norm
-                    t_ccw = np.array([-n[1], n[0]])
-                    if r[0] >= 0: 
-                        t = t_ccw 
-                    else:
-                        t= -t_ccw
+                    t = np.array([-n[1], n[0]])
+                    t_norm = np.linalg.norm(t)
+                    if t_norm > 1e-9:
+                        t = t / t_norm
 
-    
+                world_up = np.array([0.0, 1.0])
                 mods = pygame.key.get_mods()
                 torque_free = bool(mods & pygame.KMOD_SHIFT)  # shift -> pure shift
                 pure_spin   = bool(mods & pygame.KMOD_CTRL)   # ctrl -> pure spin
@@ -108,13 +143,13 @@ def main():
                 J_mag = 1.0  # impulse
 
                 if pure_spin:
-                    J = J_mag * t
+                    J = J_mag * world_up
                     apply_point = wp
                 elif torque_free:
-                    J = J_mag * n
+                    J = J_mag * -n     # modified: push direction = - radial
                     apply_point = rb.position
                 else:
-                    J = J_mag * (0.6 * n + 0.8 * t)
+                    J = J_mag * (0.7 * -n + 0.7 * world_up)   # modified: push direction = - radial
                     apply_point = wp
 
                 rb.apply_impulse(J, world_point=apply_point)
@@ -161,21 +196,28 @@ def main():
                 if gravity_on:
                     rb.apply_force([0.0, -gravity * rb.mass]) 
                 rb.integrate(dt)
+                collide_with_ground(rb, ground_y)
                 elapsed += dt
 
-        com_y = rb.position[1]
-        if com_y < ground_y + 0.52:  
-            restitution = 0.25
-            rb.position[1] = ground_y + 0.52
-            if rb.velocity[1] < 0:
-                rb.velocity[1] = -rb.velocity[1] * restitution
-            rb.angular_velocity *= 0.9
+        # com_y = rb.position[1]                                # Naive implementation of ground, will be replaced!
+        # if com_y < ground_y + 0.52:  
+        #     restitution = 0.25
+        #     rb.position[1] = ground_y + 0.52
+        #     if rb.velocity[1] < 0:
+        #         rb.velocity[1] = -rb.velocity[1] * restitution        
+        #     rb.angular_velocity *= 0.9
+        ground_y = 0.0
+        restitution = 0.2  
+
+    
+
+        rb.angular_velocity *= 0.98
 
         screen.fill(BACKGROUND)
 
         y0 = world_to_screen((0, ground_y), ORIGIN, PPM)[1]
         pygame.draw.line(screen, (100, 100, 100), (0, y0), (SCREEN_W, y0), 2)
-
+ 
         draw_polygon(screen, rb.world_vertices(), ORIGIN, PPM, color=(0, 140, 255))
 
         info_lines = [

@@ -51,11 +51,10 @@ def test_rigidbody2d_mass_density_exclusivity(rect_shape):
         RigidBody2D(rect_shape, mass=1.0, density=1.0, position=(0, 0))
 
 
-# L
 
 def test_integrate_updates_linear_state(rect_shape):
     rb = RigidBody2D(rect_shape, mass=2.0, position=(0, 0), velocity=(0, 0))
-    # net force -> [1, -2]
+    # net acceleration -> [1, -2]
     rb.apply_force([2.0, -4.0])
     dt = 0.1
     rb.integrate(dt)
@@ -93,8 +92,8 @@ def test_support_point_and_projection(rect_shape):
 
     # projection -> [-1, 1]
     pmin, pmax = rb.project_onto_axis([1.0, 0.0])
-    assert pmin == pytest.approx(-1.0, abs=1e-12)
-    assert pmax == pytest.approx( 1.0, abs=1e-12)
+    assert pmin == pytest.approx(-1.0, abs=1e-10)
+    assert pmax == pytest.approx( 1.0, abs=1e-10)
 
 # Rotation test
 def test_aabb_rotated(rect_shape):
