@@ -1,8 +1,12 @@
+from .collisions import CollisionSystem
+
+
 class World:
-    def __init__(self, dt=0.1):
+    def __init__(self, dt=0.1, collision_system=None):
         self.dt = dt
         self.bodies = []
         self.springs = []
+        self.collision_system = collision_system or CollisionSystem()
 
     def add_body(self, body):
         self.bodies.append(body)
@@ -18,3 +22,6 @@ class World:
 
         for body in self.bodies:
             euler_step(body, self.dt)
+
+        if self.collision_system is not None:
+            self.collision_system.step(self.bodies)
