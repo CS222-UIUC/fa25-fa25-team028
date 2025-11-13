@@ -1,4 +1,6 @@
 from .body import Body
 from .spring import Spring
+from .world import World
+from .utils import create_chain
 
-__all__ = ["Body", "Spring"]
+__all__ = ["Body", "Spring", "World", "create_chain"]
