@@ -19,3 +19,9 @@ venv/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Python build / packaging
+*.egg-info/
+*.egg
+build/
+dist/
