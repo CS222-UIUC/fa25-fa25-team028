@@ -180,24 +180,6 @@ def main():
                 world.step()
                 elapsed_time += world.dt
 
-            # Check for instability
-            max_speed = max(np.linalg.norm(body.velocity) for body in bodies)
-            if max_speed > 20:
-                print(f"\n=== INSTABILITY DETECTED at t={elapsed_time:.2f}s ===")
-                print(f"Max speed: {max_speed:.2f} m/s")
-                for i, body in enumerate(bodies):
-                    speed = np.linalg.norm(body.velocity)
-                    print(f"Body {i}: pos={body.position}, speed={speed:.2f}, mass={body.mass:.1e}")
-
-                print("\nSpring states:")
-                for i, spring in enumerate(springs):
-                    length = np.linalg.norm(spring.body2.position - spring.body1.position)
-                    stretch = length - spring.rest_length
-                    print(f"Spring {i}: length={length:.2f}, rest={spring.rest_length}, stretch={stretch:.2f}")
-
-                paused = True
-                play_pause_button.text = "Play"
-
         # Rendering
         screen.fill(BACKGROUND_COLOR)
 
