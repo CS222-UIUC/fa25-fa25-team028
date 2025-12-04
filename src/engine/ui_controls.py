@@ -6,15 +6,16 @@ class Button:
         self.rect = pygame.Rect(x, y, width, height)
         self.text = text
         self.color = color
-        self.hover_color = (150, 150, 250)
+        r, g, b = color
+        self.hover_color = (min(255, r + 30), min(255, g + 30), min(255, b + 30))
         self.is_hovered = False
         self.font = pygame.font.SysFont(None, 28)
 
     def draw(self, screen):
         current_color = self.hover_color if self.is_hovered else self.color
 
-        pygame.draw.rect(screen, current_color, self.rect)
-        pygame.draw.rect(screen, (255,255,255), self.rect, 2)
+        pygame.draw.rect(screen, current_color, self.rect, border_radius=12)
+        pygame.draw.rect(screen, (255,255,255), self.rect, 2, border_radius=12)
 
         text_surface = self.font.render(self.text, True, (255, 255, 255))
         text_rect = text_surface.get_rect(center=self.rect.center)
@@ -43,17 +44,17 @@ class Slider:
 
     def draw(self, screen):
         track_rect = pygame.Rect(self.x, self.y, self.width, self.height)
-        pygame.draw.rect(screen, (100, 100, 100), track_rect)
-        pygame.draw.rect(screen, (255, 255, 255), track_rect, 1)
+        pygame.draw.rect(screen, (200, 200, 200), track_rect, border_radius=10)
+        pygame.draw.rect(screen, (150, 150, 150), track_rect, 1, border_radius=10)
 
         ratio = (self.value - self.min_val) / (self.max_val - self.min_val)
         handle_x = self.x + int(ratio * self.width)
         handle_rect = pygame.Rect(handle_x - 5, self.y - 5, 10, self.height + 10)
 
-        pygame.draw.rect(screen, (200, 200, 255), handle_rect)
-        pygame.draw.rect(screen, (255, 255, 255), handle_rect, 2)
+        pygame.draw.rect(screen, (100, 150, 255), handle_rect, border_radius=5)
+        pygame.draw.rect(screen, (70, 120, 220), handle_rect, 2, border_radius=5)
         label_text = f"{self.label}: {self.value:.2f}x"
-        text_surface = self.font.render(label_text, True, (255, 255, 255))
+        text_surface = self.font.render(label_text, True, (50, 50, 50))
         screen.blit(text_surface, (self.x, self.y - 25))
 
     def handle_event(self, event):
@@ -92,7 +93,7 @@ class InfoPanel:
         y_offset = self.y
 
         for line in info_lines:
-            text = self.small_font.render(line, True, (200, 200, 200))
+            text = self.small_font.render(line, True, (50, 50, 50))
             screen.blit(text, (self.x, y_offset))
             y_offset += 25
 
