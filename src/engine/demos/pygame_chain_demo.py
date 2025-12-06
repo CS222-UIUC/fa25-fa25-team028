@@ -6,6 +6,7 @@ from engine.spring import Spring
 from engine.world import World
 from engine.utils import create_chain
 from engine.ui_controls import Button, Slider, InfoPanel
+from engine.collisions import CollisionSystem
 
 
 def main():
@@ -33,8 +34,17 @@ def main():
     clock = pygame.time.Clock()
     FPS = 60
 
-    # Create physics world and chain
-    world = World(dt=0.01)
+    # Create physics world with collision system (floor and walls enabled)
+    collision_system = CollisionSystem(
+        floor_y=-4.0,
+        floor_enabled=True,
+        wall_left=-8.0,
+        wall_right=8.0,
+        walls_enabled=True,
+        bounce_damping=0.7
+    )
+    world = World(dt=0.01, collision_system=collision_system)
+
     bodies, springs = create_chain(
         num_bodies=8,
         start_position=[-3.5, 2],
@@ -68,6 +78,8 @@ def main():
     step_button = Button(270, SCREEN_HEIGHT - 60, 120, 50, "Step", (100, 100, 150))
     gravity_button = Button(400, SCREEN_HEIGHT - 60, 120, 50, "Gravity: ON", (100, 100, 200))
     bridge_button = Button(530, SCREEN_HEIGHT - 60, 120, 50, "Bridge: OFF", (200, 100, 100))
+    floor_button = Button(660, SCREEN_HEIGHT - 60, 120, 50, "Floor: ON", (150, 100, 150))
+
     speed_slider = Slider(10, 50, 150, 0.1, 3.0, 1.0, "Speed")
     info_panel = InfoPanel(SCREEN_WIDTH - 250, 10)
 
@@ -130,6 +142,10 @@ def main():
             if bridge_button.handle_event(event):
                 toggle_bridge_mode()
 
+            if floor_button.handle_event(event):
+                world.collision_system.floor_enabled = not world.collision_system.floor_enabled
+                floor_button.text = f"Floor: {'ON' if world.collision_system.floor_enabled else 'OFF'}"
+
             speed_slider.handle_event(event)
 
             # Keyboard shortcuts
@@ -144,6 +160,9 @@ def main():
                     gravity_button.text = f"Gravity: {'ON' if apply_gravity else 'OFF'}"
                 elif event.key == pygame.K_b:
                     toggle_bridge_mode()
+                elif event.key == pygame.K_f:
+                    world.collision_system.floor_enabled = not world.collision_system.floor_enabled
+                    floor_button.text = f"Floor: {'ON' if world.collision_system.floor_enabled else 'OFF'}"
 
             # Mouse dragging
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -183,6 +202,21 @@ def main():
         # Rendering
         screen.fill(BACKGROUND_COLOR)
 
+        # Draw floor
+        if world.collision_system.floor_enabled:
+            floor_screen_y = physics_to_display([0, world.collision_system.floor_y])[1]
+            pygame.draw.line(screen, (100, 50, 50), (0, floor_screen_y),
+                             (SCREEN_WIDTH, floor_screen_y), 4)
+
+        # Draw walls
+        if world.collision_system.walls_enabled:
+            left_wall_x = physics_to_display([world.collision_system.wall_left, 0])[0]
+            right_wall_x = physics_to_display([world.collision_system.wall_right, 0])[0]
+            pygame.draw.line(screen, (50, 100, 50), (left_wall_x, 0),
+                             (left_wall_x, SCREEN_HEIGHT), 4)
+            pygame.draw.line(screen, (50, 100, 50), (right_wall_x, 0),
+                             (right_wall_x, SCREEN_HEIGHT), 4)
+
         # Draw springs
         for spring in springs:
             pos1 = physics_to_display(spring.body1.position)
@@ -205,12 +239,13 @@ def main():
         step_button.draw(screen)
         gravity_button.draw(screen)
         bridge_button.draw(screen)
+        floor_button.draw(screen)
 
         # Draw instructions
         instructions_font = pygame.font.Font(None, 20)
         instructions = [
             "Click and drag bodies to move them",
-            "SPACE: Play/Pause  |  R: Reset  |  G: Gravity  |  B: Bridge"
+            "SPACE: Play/Pause | R: Reset | G: Gravity | B: Bridge | F: Floor"
         ]
         for i, instruction in enumerate(instructions):
             text = instructions_font.render(instruction, True, (50, 50, 50))

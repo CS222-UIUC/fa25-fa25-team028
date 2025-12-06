@@ -11,6 +11,7 @@ class Body:
         self.radius = float(radius)
         self.restitution = float(restitution)
         self.is_static = bool(is_static)
+        self.radius = radius
 
     def apply_force(self, force):
         self.force += np.array(force, dtype=float)
