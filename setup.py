@@ -22,6 +22,7 @@ setup(
             "single-spring-demo=engine.demos.single_spring_demo:main",
             "pygame-spring-demo=engine.demos.pygame_spring_demo:main",
             "rigidbody2d-demo=engine.demos.rigidbody2d_pygame_demo:main",
+            "rigidbody2d-sandbox=engine.demos.rigidbody2d_sandbox:main",
         ]
     },
 )
