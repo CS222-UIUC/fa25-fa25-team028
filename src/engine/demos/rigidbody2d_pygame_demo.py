@@ -1,7 +1,10 @@
 import sys
+import os
 import math
 import numpy as np
 import pygame
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from engine.rigidbody2d import PolygonShape, RigidBody2D, cross2D
 REST_COEF = 0.2

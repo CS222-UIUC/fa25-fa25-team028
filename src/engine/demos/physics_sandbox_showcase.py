@@ -1,6 +1,9 @@
 import sys
+import os
 import numpy as np
 import pygame
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from engine.body import Body
 from engine.spring import Spring
