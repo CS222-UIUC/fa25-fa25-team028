@@ -1,3 +1,8 @@
+import sys
+import os
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
 from engine.utils import create_chain
 from engine.world import World
 

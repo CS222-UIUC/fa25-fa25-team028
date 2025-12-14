@@ -1,8 +1,13 @@
+import sys
+import os
+import numpy as np
+import math
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
 from engine.body import Body
 from engine.spring import Spring
 from engine.world import World
-import numpy as np
-import math
 
 def approximated_period(mass,k):
     return 2 * math.pi * math.sqrt(mass / k)
