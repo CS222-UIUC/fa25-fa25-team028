@@ -93,7 +93,7 @@ def main():
     chain_btn  = Button(492, 12, 150, 32, "Add Chain", (120, 95, 150))
     grav_btn   = Button(652, 12, 140, 32, "Gravity: ON", (120, 120, 90))
 
-    sub_slider = Slider(12, 60, 240, 1, 8, 2, "Speed")
+    sub_slider = Slider(12, 60, 240, 1, 8, 6, "Speed")
     info_panel = InfoPanel(SCREEN_W - 250, 12)
 
     paused = False
@@ -116,6 +116,9 @@ def main():
                    radius=BLOCK_RADIUS, restitution=0.0)
         world.add_body(bb1)
         world.add_body(bb2)
+        # sp = Spring(bb1, bb2, k=15.0,
+        #             rest_length=np.linalg.norm(bb2.position - bb1.position),
+        #             damping=0.5)
         sp = Spring(bb1, bb2, k=15.0,
                     rest_length=np.linalg.norm(bb2.position - bb1.position),
                     damping=0.5)
@@ -149,9 +152,10 @@ def main():
                             if spring_first_body is None:
                                 spring_first_body = target
                             else:
-                                rest_len = np.linalg.norm(
-                                    target.position - spring_first_body.position
-                                )
+                                # rest_len = np.linalg.norm(
+                                #     target.position - spring_first_body.position
+                                # )
+                                rest_len = 2
                                 new_spring = Spring(
                                     spring_first_body,
                                     target,
@@ -248,6 +252,10 @@ def main():
 
             for body in world.bodies:
                 body.velocity *= AIR_DAMP
+                if collision_sys.floor_enabled:
+                    expected_y = collision_sys.floor_y + body.radius
+                    if abs(body.position[1] - expected_y) < 1e-3:
+                        body.velocity[0] *= 0.7
 
             elapsed += world.dt
 

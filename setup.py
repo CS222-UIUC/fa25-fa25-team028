@@ -24,6 +24,7 @@ setup(
             "rigidbody2d-demo=engine.demos.rigidbody2d_pygame_demo:main",
             "rigidbody2d-sandbox=engine.demos.rigidbody2d_sandbox:main",
             "physics-sandbox-showcase=engine.demos.physics_sandbox_showcase:main",
+            "physics-polygon-showcase=engine.demos.physics_polygon_showcase:main", 
         ]
     },
 )
